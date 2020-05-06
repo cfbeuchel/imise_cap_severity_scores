@@ -1,0 +1,20 @@
+#intro {
+    margin-bottom: 0;
+    align-items: center;
+    display: block;
+    margin: 0 auto;
+    background: #d1351b;
+    color: white;
+    min-width: 25%;
+    border-color: white
+}
+#gotoresults {
+    margin-bottom: 0;
+    align-items: center;
+    display: block;
+    margin: 0 auto;
+    background: #82E0AA;
+    color: black;
+    min-width: 25%;
+    border-color: white
+}
