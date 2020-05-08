@@ -1,4 +1,4 @@
-server <- function(input output session) {
+server <- function(input, output, session) {
   
   # Setup ----
   
@@ -7,15 +7,15 @@ server <- function(input output session) {
   
   # UI - Startup message ----
   
-  observeEvent("" {
+  observeEvent("", {
     showModal(
       modalDialog(
-        includeHTML("www/popup_text.html")
-        easyClose = TRUE
+        includeHTML("www/popup_text.html"),
+        easyClose = TRUE,
         footer = tagList(
           actionButton(
-            inputId = "intro"
-            label = "Quick Start"
+            inputId = "intro",
+            label = "Quick Start",
             icon = icon("info-circle")
           )
         )
@@ -23,7 +23,7 @@ server <- function(input output session) {
   })
   
   # close startup message when pressing the button
-  observeEvent(input$intro{
+  observeEvent(input$intro, {
     removeModal()
   })
   
@@ -31,27 +31,27 @@ server <- function(input output session) {
   
   # watch for the calculation button and run the specific analysis
   observeEvent(
-    input$run.calculate{
+    input$run.calculate,{
       
       # Feedback dialog
       showModal(
         modalDialog(
           div(
-            style="text-align: center;padding: 20px 20px"
+            style="text-align: center;padding: 20px 20px",
             p("The selected score has been calculated! Please see the 'Results'-panel.")
-          )
-          easyClose = TRUE
+          ),
+          easyClose = TRUE,
           footer = actionButton(
-            class="intro"
-            inputId = "gotoresults"
-            label = "Go To Results"
+            class="intro",
+            inputId = "gotoresults",
+            label = "Go To Results",
             icon = icon("poll")
           )
         ))
     })
   
   # After showing Info Button -> Go to results Panel
-  observeEvent(input$gotoresults{
+  observeEvent(input$gotoresults,{
     removeModal()
     show("panel_results")
     hide("panel_format")
@@ -73,37 +73,40 @@ server <- function(input output session) {
   # Data Upload Box
   output$box_upload <- renderUI({
     div(
-      style="position: relative; backgroundColor: #ecf0f5"
+      style="position: relative; backgroundColor: #ecf0f5",
       tabBox(
-        id = "box_upload"
-        width = NULL
-        height = 320
+        id = "box_upload",
+        width = NULL,
+        height = 320,
         tabPanel(
-          title = "Data Upload"
+          
+          title = "Data Upload",
           
           # dataTableOutput('mytable')
-          fileInput('input.data' 'Select a file to upload'
+          fileInput('input.data', 
+                    'Select a file to upload',
                     accept = c(
-                      'text/csv'
-                      'text/comma-separated-values'
-                      'text/tab-separated-values'
-                      'text/plain'
-                      '.csv'
+                      'text/csv',
+                      'text/comma-separated-values',
+                      'text/tab-separated-values',
+                      'text/plain',
+                      '.csv',
                       '.tsv'
-                    ))
+                    )),
           # Input: Select separator
-          radioButtons("sep.data" "Separator"
-                       choices = c(Comma = ""
-                                   Semicolon = ";"
-                                   Tab = "\t")
-                       selected = "")
+          radioButtons("sep.data",
+                       "Separator",
+                       choices = c(Comma = ",",
+                                   Semicolon = ";",
+                                   Tab = "\t"),
+                       selected = ","),
           
           # Input: Select quotes
-          radioButtons("quote.data" "Quote"
-                       choices = c(None = ""
-                                   "Double Quote" = '"'
-                                   "Single Quote" = "'")
-                       selected = '"')
+          radioButtons("quote.data", "Quote",
+                       choices = c(None = "",
+                                   "Double Quote" = '"',
+                                   "Single Quote" = "'"),
+                       selected = '"'),
           # Horizontal line
           tags$hr()
           
@@ -115,13 +118,13 @@ server <- function(input output session) {
   # Data preview Box
   output$box_preview <- renderUI({
     div(
-      style="position: relative; backgroundColor: #ecf0f5"
+      style="position: relative; backgroundColor: #ecf0f5",
       tabBox(
-        id = "box_preview"
-        width = NULL
-        height = 320
+        id = "box_preview",
+        width = NULL,
+        height = 320,
         tabPanel(
-          title = "Data Preview"{
+          title = "Data Preview", {
             
             # preview the uploaded data
             DT::dataTableOutput("data.preview.table")
@@ -136,11 +139,11 @@ server <- function(input output session) {
   # Data Format Box - Info about necessary data format
   output$box_formatdescription <- renderUI({
     div(
-      style="position: relative; backgroundColor: #ecf0f5"
+      style="position: relative; backgroundColor: #ecf0f5",
       tabBox(
-        id = "box_formatdescription"
-        width = NULL
-        height = 320
+        id = "box_formatdescription",
+        width = NULL,
+        height = 320,
         tabPanel(
           title = "Format"
         )
@@ -151,11 +154,11 @@ server <- function(input output session) {
   # Format example Box
   output$box_formatexample <- renderUI({
     div(
-      style="position: relative; backgroundColor: #ecf0f5"
+      style="position: relative; backgroundColor: #ecf0f5",
       tabBox(
-        id = "box_formatexample"
-        width = NULL
-        height = 320
+        id = "box_formatexample",
+        width = NULL,
+        height = 320,
         tabPanel(
           title = "Example"
         )
@@ -172,37 +175,37 @@ server <- function(input output session) {
   output$box_select_psi <- renderUI({
     
     div(
-      style="position: relative; backgroundColor: #ecf0f5; overflow-y:scroll"
+      style="position: relative; backgroundColor: #ecf0f5; overflow-y:scroll",
       tabBox(
-        id = "box_select_psi"
-        width = NULL
-        height = 640
+        id = "box_select_psi",
+        width = NULL,
+        height = 640,
         tabPanel(
-          title = "PSI"
-          helpText("Please select the columns in your data that encode the necessary information for the computation of the PSI score.")
-          tags$hr()
-          selectInput("psi_id" "Patient ID" choices = NULL)
-          selectInput("psi_age" "Age [years]" choices = NULL)
-          selectInput("psi_sex" "Sex (female=1 male=0)" choices = NULL)
-          selectInput("psi_confusion" "Altered mental status (yes=1 no=0)" choices = NULL)
-          selectInput("psi_pulse" "Pulse [beats/min]" choices = NULL)
-          selectInput("psi_resprate" "Respiratory rate [breaths/min]" choices = NULL)
-          selectInput("psi_bpsys" "Systolic blood pressure [mmHg]" choices = NULL)
-          selectInput("psi_tempmin" "Minimum Temperature [°C]" choices = NULL)
-          selectInput("psi_tempmax" "Maximum Temperature [°C]" choices = NULL)
-          selectInput("psi_tumor" "Neoplastic disease (yes=1 no=0)" choices = NULL)
-          selectInput("psi_heart" "Congestive heart failure history (yes=1 no=0)" choices = NULL)
-          selectInput("psi_cerebo" "Cerebrovascular disease history (yes=1 no=0)" choices = NULL)
-          selectInput("psi_renal" "Renal disease history  (yes=1 no=0)" choices = NULL)
-          selectInput("psi_liver" "Liver disease history (yes=1 no=0)" choices = NULL)
-          selectInput("psi_nursehome" "Nursing home resident (yes=1 no=0)" choices = NULL)
-          selectInput("psi_ph" "pH" choices = NULL) # TODO: was ist das? ----
-          selectInput("psi_bun" "BUN [mmol/L]" choices = NULL)
-          selectInput("psi_snat" "Snat (Sodium) [mmol/L]" choices = NULL)
-          selectInput("psi_gluc" "Glucose [mmol/L]" choices = NULL)
-          selectInput("psi_haem" "Hematocrit [%]" choices = NULL)
-          selectInput("psi_apo2" "Partial pressure of oxygen [mmHg]" choices = NULL)
-          selectInput("psi_pleu" "Pleural effusion on x-ray (yes=1 no=0)" choices = NULL)
+          title = "PSI",
+          helpText("Please select the columns in your data that encode the necessary information for the computation of the PSI score."),
+          tags$hr(),
+          selectInput("psi_id", "Patient ID", choices = NULL),
+          selectInput("psi_age", "Age [years]", choices = NULL),
+          selectInput("psi_sex", "Sex (female=1 male=0)", choices = NULL),
+          selectInput("psi_confusion", "Altered mental status (yes=1 no=0)", choices = NULL),
+          selectInput("psi_pulse", "Pulse [beats/min]", choices = NULL),
+          selectInput("psi_resprate", "Respiratory rate [breaths/min]", choices = NULL),
+          selectInput("psi_bpsys", "Systolic blood pressure [mmHg]", choices = NULL),
+          selectInput("psi_tempmin", "Minimum Temperature [°C]", choices = NULL),
+          selectInput("psi_tempmax", "Maximum Temperature [°C]", choices = NULL),
+          selectInput("psi_tumor", "Neoplastic disease (yes=1 no=0)", choices = NULL),
+          selectInput("psi_heart", "Congestive heart failure history (yes=1 no=0)", choices = NULL),
+          selectInput("psi_cerebo", "Cerebrovascular disease history (yes=1 no=0)", choices = NULL),
+          selectInput("psi_renal", "Renal disease history  (yes=1 no=0)", choices = NULL),
+          selectInput("psi_liver", "Liver disease history (yes=1 no=0)", choices = NULL),
+          selectInput("psi_nursehome", "Nursing home resident (yes=1 no=0)", choices = NULL),
+          selectInput("psi_ph", "pH", choices = NULL), # TODO: was ist das? ----
+          selectInput("psi_bun", "BUN [mmol/L]", choices = NULL),
+          selectInput("psi_snat", "Snat (Sodium) [mmol/L]", choices = NULL),
+          selectInput("psi_gluc", "Glucose [mmol/L]", choices = NULL),
+          selectInput("psi_haem", "Hematocrit [%]", choices = NULL),
+          selectInput("psi_apo2", "Partial pressure of oxygen [mmHg]", choices = NULL),
+          selectInput("psi_pleu", "Pleural effusion on x-ray (yes=1 no=0)", choices = NULL),
           tags$hr()
           
         )
@@ -217,11 +220,11 @@ server <- function(input output session) {
   # Results Download Box
   output$box_resultsdownload <- renderUI({
     div(
-      style="position: relative; backgroundColor: #ecf0f5"
+      style="position: relative; backgroundColor: #ecf0f5",
       tabBox(
-        id = "box_resultsdownload"
-        width = NULL
-        height = 320
+        id = "box_resultsdownload",
+        width = NULL,
+        height = 320,
         tabPanel(
           title = "Downloads"
         )
@@ -232,13 +235,13 @@ server <- function(input output session) {
   # Result preview Box
   output$box_resultsview <- renderUI({
     div(
-      style="position: relative; backgroundColor: #ecf0f5"
+      style="position: relative; backgroundColor: #ecf0f5",
       tabBox(
-        id = "box_resultsview"
-        width = NULL
-        height = 320
+        id = "box_resultsview",
+        width = NULL,
+        height = 320,
         tabPanel(
-          title = "Results"
+          title = "Results",
           DT::dataTableOutput("result.preview")
         )
       )
@@ -248,7 +251,7 @@ server <- function(input output session) {
   # Dynamic Rendering ----
   
   # Init - show the upload panel by default
-  observeEvent("" {
+  observeEvent("" ,{
     hide("panel_format")
     show("panel_upload")
     hide("panel_results")
@@ -259,10 +262,10 @@ server <- function(input output session) {
     hide("panel_scap")
     hide("panel_smartcop")
     
-  }once = TRUE)
+  }, once = TRUE)
   
   # UI based on menu selection
-  observeEvent(input$menu{
+  observeEvent(input$menu, {
     
     if(input$menu=="tab_results"){
       hide("panel_format")
@@ -360,19 +363,19 @@ server <- function(input output session) {
       hide("panel_scap")
       show("panel_smartcop")
     }
-  }once = FALSE)
+  }, once = FALSE)
   
   # PROCESSES ----
   
   # Reactive Data Upload ----
   
-  observeEvent(input$input.data{
+  observeEvent(input$input.data, {
     req(input$input.data)
     tryCatch(
       {
         # read the input data
-        values$dat <- fread(input$input.data$datapath
-                            sep = input$sep.data
+        values$dat <- fread(input$input.data$datapath,
+                            sep = input$sep.data,
                             quote = input$quote.data)
         
         # save the input data in the reactive value 
@@ -381,7 +384,7 @@ server <- function(input output session) {
         # return the input data
         # input.data
         
-      } error = function(e) {
+      }, error = function(e) {
         stop(safeError(e))
       }
     )
@@ -392,39 +395,39 @@ server <- function(input output session) {
   
   # Update Column Selection after Upload ----
   
-  observeEvent(input$input.data{
+  observeEvent(input$input.data, {
     
     # get the data 
     dat <- values$dat
 
     # collect all inputIDs
-    inputid.psi <- c("psi_id", "psi_age" "psi_sex" "psi_confusion" 
-                     "psi_pulse" "psi_resprate" "psi_bpsys"
-                     "psi_tempmin" "psi_tempmax" "psi_tumor" 
-                     "psi_heart" "psi_cerebo" "psi_renal"
-                     "psi_liver" "psi_nursehome" "psi_ph"
-                     "psi_bun" "psi_snat" "psi_gluc" 
-                     "psi_haem" "psi_apo2" "psi_pleu")
+    inputid.psi <- c("psi_id", "psi_age", "psi_sex", "psi_confusion",
+                     "psi_pulse", "psi_resprate", "psi_bpsys",
+                     "psi_tempmin", "psi_tempmax", "psi_tumor", 
+                     "psi_heart", "psi_cerebo", "psi_renal",
+                     "psi_liver", "psi_nursehome", "psi_ph",
+                     "psi_bun", "psi_snat", "psi_gluc",
+                     "psi_haem", "psi_apo2", "psi_pleu")
     
     # join ids
     my.inputid <- c(inputid.psi)
         
     # update all ids
     for(i in my.inputid){
-      updateSelectInput(session ichoices = c(NULLnames(dat)))
+      updateSelectInput(session, i, choices = c(NULL,names(dat)))
     }
     
   })
   
   # Calculate Score ----
   
-  observeEvent(input$run.calculate{
+  observeEvent(input$run.calculate,{
     
     # render output text in case not all colums are provided
     output$result.preview <- renderText( # TODO: link this to a datatable ----
       validate(
         need(
-          expr = values$dat
+          expr = values$dat,
           message = "No input data provided! Please upload your data!")
       )
     )
@@ -435,7 +438,7 @@ server <- function(input output session) {
     
     # data
     dat <- isolate(values$dat)
-    message(paste(dim(dat)collapse = " "))
+    message(paste(dim(dat),collapse = " "))
     
     # PSI ----
     if(menu.select=="subtab_psi"){
@@ -465,29 +468,29 @@ server <- function(input output session) {
         input$psi_pleu
       })
       
-      psi_simple(
-        age = dat[,.SD,.SDcols=],
-        gender = dat[,.SD,.SDcols=],
-        verwirrt = dat[,.SD,.SDcols=],
-        hfrq.max = dat[,.SD,.SDcols=],
-        afrq.max = dat[,.SD,.SDcols=],
-        sysbp.min = dat[,.SD,.SDcols=],
-        temp.min = dat[,.SD,.SDcols=],
-        temp.max = dat[,.SD,.SDcols=],
-        tumor = dat[,.SD,.SDcols=],
-        herz = dat[,.SD,.SDcols=],
-        cerebro = dat[,.SD,.SDcols=],
-        renal = dat[,.SD,.SDcols=],
-        liver = dat[,.SD,.SDcols=],
-        nurse.home = dat[,.SD,.SDcols=],
-        art.ph.min = dat[,.SD,.SDcols=],
-        bun = dat[,.SD,.SDcols=],
-        snat = dat[,.SD,.SDcols=],
-        gluk = dat[,.SD,.SDcols=],
-        haemkrt = dat[,.SD,.SDcols=],
-        apo2.min = dat[,.SD,.SDcols=],
-        pleu_erg = dat[,.SD,.SDcols=])
-      
+      # psi_simple(
+      #   age = dat[,.SD,.SDcols=],
+      #   gender = dat[,.SD,.SDcols=],
+      #   verwirrt = dat[,.SD,.SDcols=],
+      #   hfrq.max = dat[,.SD,.SDcols=],
+      #   afrq.max = dat[,.SD,.SDcols=],
+      #   sysbp.min = dat[,.SD,.SDcols=],
+      #   temp.min = dat[,.SD,.SDcols=],
+      #   temp.max = dat[,.SD,.SDcols=],
+      #   tumor = dat[,.SD,.SDcols=],
+      #   herz = dat[,.SD,.SDcols=],
+      #   cerebro = dat[,.SD,.SDcols=],
+      #   renal = dat[,.SD,.SDcols=],
+      #   liver = dat[,.SD,.SDcols=],
+      #   nurse.home = dat[,.SD,.SDcols=],
+      #   art.ph.min = dat[,.SD,.SDcols=],
+      #   bun = dat[,.SD,.SDcols=],
+      #   snat = dat[,.SD,.SDcols=],
+      #   gluk = dat[,.SD,.SDcols=],
+      #   haemkrt = dat[,.SD,.SDcols=],
+      #   apo2.min = dat[,.SD,.SDcols=],
+      #   pleu_erg = dat[,.SD,.SDcols=])
+
       # SIRS ----
     } else if (menu.select=="subtab_sirs"){
       
