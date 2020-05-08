@@ -15,14 +15,14 @@ ui <- dashboardPage(
   # Dashboard Header ----
   dashboardHeader(
     title = strong("CAP Severity Scores"),
-    
+
     # Top-Right ? Help Window ----
     dropdownMenu(
-      type = "notifications", 
-      headerText = strong("Help"), 
-      icon = icon("question"), 
+      type = "notifications",
+      headerText = strong("Help"),
+      icon = icon("question"),
       badgeStatus = NULL,
-      
+
       # Quick workflow guide
       notificationItem(
         text = tags$div("See the 'Format' tab before",
@@ -73,7 +73,6 @@ ui <- dashboardPage(
         text = "Data",
         tabName = "tab_data",
         icon = icon("table",
-                    class = NULL, 
                     lib = "font-awesome"),
         menuSubItem("Format",
                     tabName = "subtab_format"),
@@ -88,12 +87,14 @@ ui <- dashboardPage(
         icon = icon("calculator",
                     class = NULL, 
                     lib = "font-awesome"),
-        menuSubItem("Score1",tabName = "subtab_score1"),
-        menuSubItem("Score2"),
-        menuSubItem("Score3"),
-        menuSubItem("Score4"),
-        menuSubItem("Score5"),
-        menuSubItem("Score6")
+        
+        # Menu of all scores to be computed
+        menuSubItem("PSI",tabName = "subtab_psi"),
+        menuSubItem("SIRS",tabName = "subtab_sirs"),
+        menuSubItem("quickSOFA",tabName = "subtab_quicksofa"),
+        menuSubItem("Halm",tabName = "subtab_halm"),
+        menuSubItem("SCAP",tabName = "subtab_scap"),
+        menuSubItem("smartCOP",tabName = "subtab_smartcop")
       ),
       menuItem(
         text = "Results",
@@ -164,8 +165,101 @@ ui <- dashboardPage(
         )
     ),
     
-    # Score 1 Panel ----
-    # Score X Panel ----
+    # Score PSI Panel ----
+    
+    div(style = "padding: 20px 20px;",
+        id = "panel_psi",
+        fluidRow(
+          column(
+            width=3,
+            uiOutput("box_select_psi")
+          ),
+          column(
+            width=9,
+            uiOutput("box_preview_psi")
+          )
+        )
+    ),
+    
+    # Score SIRS Panel ----
+    
+    div(style = "padding: 20px 20px;",
+        id = "panel_sirs",
+        fluidRow(
+          column(
+            width=3,
+            uiOutput("box_select_sirs")
+          ),
+          column(
+            width=9,
+            uiOutput("box_preview_sirs")
+          )
+        )
+    ),
+    
+    # Score quickSOFA Panel ----
+    
+    div(style = "padding: 20px 20px;",
+        id = "panel_quicksofa",
+        fluidRow(
+          column(
+            width=3,
+            uiOutput("box_select_quicksofa")
+          ),
+          column(
+            width=9,
+            uiOutput("box_preview_quicksofa")
+          )
+        )
+    ),
+    
+    # Score Halm Panel ----
+    
+    div(style = "padding: 20px 20px;",
+        id = "panel_halm",
+        fluidRow(
+          column(
+            width=3,
+            uiOutput("box_select_halm")
+          ),
+          column(
+            width=9,
+            uiOutput("box_preview_halm")
+          )
+        )
+    ),
+    
+    # Score SCAP Panel ----
+    
+    div(style = "padding: 20px 20px;",
+        id = "panel_scap",
+        fluidRow(
+          column(
+            width=3,
+            uiOutput("box_select_scap")
+          ),
+          column(
+            width=9,
+            uiOutput("box_preview_scap")
+          )
+        )
+    ),
+    
+    # Score smartCOP Panel ----
+    
+    div(style = "padding: 20px 20px;",
+        id = "panel_smartcop",
+        fluidRow(
+          column(
+            width=3,
+            uiOutput("box_select_smartcop")
+          ),
+          column(
+            width=9,
+            uiOutput("box_preview_smartcop")
+          )
+        )
+    ),
     
     # Results Panel ----
     
@@ -182,6 +276,5 @@ ui <- dashboardPage(
           )
         )
     )
-    
   )
 )
