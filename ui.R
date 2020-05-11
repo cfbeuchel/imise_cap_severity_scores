@@ -70,16 +70,16 @@ ui <- dashboardPage(
     sidebarMenu(
       id = "menu",
       menuItem(
-        text = "Data",
+        text = "Input Data",
         tabName = "tab_data",
         icon = icon("table",
-                    lib = "font-awesome"),
-        menuSubItem("Format",
-                    tabName = "subtab_format"),
-        menuSubItem("Upload",
-                    selected = TRUE,
-                    tabName = "subtab_upload"
-        )
+                    lib = "font-awesome")#,
+        # menuSubItem("Format",
+        #             tabName = "subtab_format"),
+        # menuSubItem("Upload",
+        #             selected = TRUE,
+        #             tabName = "subtab_upload"
+        # )
       ),
       menuItem(
         text = "Score",
@@ -133,23 +133,7 @@ ui <- dashboardPage(
       )
     ),
     
-    # Format Panel ----
-    
-    div(style = "padding: 20px 20px;",
-        id = "panel_format",
-        fluidRow(
-          column(
-            width=3,
-            uiOutput("box_formatdescription")
-          ),
-          column(
-            width=9,
-            uiOutput("box_formatexample")
-          )
-        )
-    ),
-    
-    # Upload Panel ----
+    # Data Upload Panel ----
     
     div(style = "padding: 20px 20px;",
         id = "panel_upload",

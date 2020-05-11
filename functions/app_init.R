@@ -12,4 +12,4 @@ library("progressdatenbankderivate")
 
 # Source functions
 
-# source("functions/")
+source("functions/quicksofa_simple.R")
