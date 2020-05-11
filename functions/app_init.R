@@ -9,7 +9,6 @@ library("DT")
 library("readxl")
 library("progressdatenbankderivate")
 
-
 # Source functions
 
 source("functions/quicksofa_simple.R")

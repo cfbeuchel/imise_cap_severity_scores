@@ -116,9 +116,11 @@ server <- function(input, output, session) {
           
         ),
         tabPanel(
-          title="Information",{
-            # TODO Add Format Info ----
-          }
+          title="Information",
+          helpText("Test the functionality of the App using the example data."),
+          actionButton(inputId = "use.example.dat",label = "Use Example Data"),
+          tags$hr(),
+          helpText(".....")
         )
       )
     )
@@ -136,13 +138,12 @@ server <- function(input, output, session) {
           title = "Upload Preview", {
             
             # preview the uploaded data
-            DT::dataTableOutput("data.preview.table",)
+            DT::dataTableOutput("data.preview.table")
           }
         ),
         tabPanel(
           title = "Data Example",{
             DT::dataTableOutput("data.example.table")
-            # TODO add example data----
           }
         )
       )
@@ -250,7 +251,7 @@ server <- function(input, output, session) {
           
           # sysBP
           selectInput("sirs_bpsys", "Systolic blood pressure [mmHg]", choices = NULL),
-
+          
           
           # selectInput("sirs_age", "Age [years]", choices = NULL),
           # selectInput("sirs_sex", "Sex (female=1 male=0)", choices = NULL),
@@ -277,7 +278,7 @@ server <- function(input, output, session) {
   
   # SIRS Data Preview Box
   
-  # TODO: quickSOFA Panel ----
+  # quickSOFA Panel ----
   
   # quickSOFA Selection Box
   output$box_select_quicksofa <- renderUI({
@@ -470,30 +471,31 @@ server <- function(input, output, session) {
   # Example Data ----
   
   # render the example data
-output$data.example.table <- DT::renderDataTable({values$example.data})
+  output$data.example.table <- DT::renderDataTable({values$example.data})
   
   # Data Upload ----
   
-  observeEvent(input$input.data, {
-    req(input$input.data)
-    tryCatch(
-      {
-        # read the input data
-        values$dat <- fread(input$input.data$datapath,
-                            sep = input$sep.data,
-                            quote = input$quote.data)
-        
-        # save the input data in the reactive value 
-        #  <- input.data
-        
-        # return the input data
-        # input.data
-        
-      }, error = function(e) {
-        stop(safeError(e))
-      }
-    )
-  })
+  observeEvent(
+    input$input.data, {
+      req(input$input.data)
+      tryCatch(
+        {
+          # read the input data
+          values$dat <- fread(input$input.data$datapath,
+                              sep = input$sep.data,
+                              quote = input$quote.data)
+          
+          # save the input data in the reactive value 
+          #  <- input.data
+          
+          # return the input data
+          # input.data
+          
+        }, error = function(e) {
+          stop(safeError(e))
+        }
+      )
+    })
   
   # execute reactive reading of upload data
   output$data.preview.table <- DT::renderDataTable({values$dat})
@@ -506,7 +508,14 @@ output$data.example.table <- DT::renderDataTable({values$example.data})
   
   # Update Column Selection after Upload ----
   
-  observeEvent(input$input.data, {
+  observeEvent({
+    input$input.data
+    input$use.example.dat
+  },{
+    
+    if(input$use.example.dat>=1 & is.null(input$input.data)){
+      values$dat <- values$example.data
+    }
     
     # get the data 
     dat <- values$dat
@@ -547,9 +556,8 @@ output$data.example.table <- DT::renderDataTable({values$example.data})
         i, 
         choices = c(NULL,names(dat)),
         selected = names(dat)[pmatch(i,names(dat),nomatch = NULL)]
-        )
+      )
     }
-    
   })
   
   # SCORE CALCULATION ----
@@ -641,7 +649,7 @@ output$data.example.table <- DT::renderDataTable({values$example.data})
         PSI = score
       )
       
-    # SIRS ----
+      # SIRS ----
     } else if (menu.select=="subtab_sirs"){
       
       # quickSOFA ----
@@ -695,7 +703,7 @@ output$data.example.table <- DT::renderDataTable({values$example.data})
     output$result.preview <- DT::renderDataTable({res})
     
   })
- 
+  
   # DOWNLOAD ----
   
   # download data
@@ -705,5 +713,5 @@ output$data.example.table <- DT::renderDataTable({values$example.data})
       fwrite(isolate(values$res), file)
     }
   )
-   
+  
 }
