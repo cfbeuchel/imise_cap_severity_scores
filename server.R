@@ -263,10 +263,10 @@ server <- function(input, output, session) {
           # selectInput("sirs_liver", "Liver disease history (yes=1 no=0)", choices = NULL),
           # selectInput("sirs_nursehome", "Nursing home resident (yes=1 no=0)", choices = NULL),
           # selectInput("sirs_ph", "pH", choices = NULL), # TODO: was ist das?
-          # selectInput("sirs_bun", "BUN [mmol/L]", choices = NULL),
           # selectInput("sirs_snat", "Snat (Sodium) [mmol/L]", choices = NULL),
           # selectInput("sirs_gluc", "Glucose [mmol/L]", choices = NULL),
           # selectInput("sirs_haem", "Hematocrit [%]", choices = NULL),
+          # selectInput("sirs_bun", "BUN [mmol/L]", choices = NULL),
           # selectInput("sirs_apo2", "Partial pressure of oxygen [mmHg]", choices = NULL),
           # selectInput("sirs_pleu", "Pleural effusion on x-ray (yes=1 no=0)", choices = NULL),
           tags$hr()
@@ -326,7 +326,76 @@ server <- function(input, output, session) {
   })
   
   # TODO: Halm Panel ----
-  # TODO: SCAP Panel ----
+  
+  # SCAP Panel ----
+  
+  # SCAP Selection Box
+  output$box_select_scap <- renderUI({
+    
+    div(
+      style="position: relative; backgroundColor: #ecf0f5; overflow-y:scroll",
+      tabBox(
+        id = "box_select_scap",
+        width = NULL,
+        height = 640,
+        tabPanel(
+          title = "SCAP",
+          helpText("Please select the columns in your data that encode the necessary information for the computation of the SCAP score."),
+          tags$hr(),
+          selectInput("scap_id", "Patient ID", choices = NULL),
+          
+          # arterial ph
+          selectInput("scap_artph", "Artierial pH", choices = NULL),
+          
+          # bpsys
+          selectInput("scap_bpsys", "Minimum Systolic blood pressure [mmHg]", choices = NULL),
+          
+          # resp rate
+          selectInput("scap_respratemin", "Minimum Respiratory rate [breaths/min]", choices = NULL),
+          selectInput("scap_respratemax", "Maximum Respiratory rate [breaths/min]", choices = NULL),
+          
+          # confusion
+          selectInput("scap_confusion", "Altered mental status (yes=1 no=0)", choices = NULL),
+          selectInput("scap_gcs", "GCS (Glasgow Coma Scale)", choices = NULL),
+          
+          # BUN (blood urea nitrogen)
+          selectInput("scap_bun", "BUN [mmol/L]", choices = NULL),
+          
+          # Age ≥80 years
+          selectInput("scap_age", "Age [years]", choices = NULL),
+          
+          # PaO2 <54 mmHg (or PaO2/FiO2 <250 mmHg) partial O2 pressure
+          selectInput("scap_apo2", "Partial pressure of oxygen [mmHg]", choices = NULL),
+
+          # Multilobar/bilateral X-ray (yes=1, no=0)
+          selectInput("scap_multl", "Multilobar/bilateral X-ray (yes=1 no=0)", choices = NULL),
+          
+          tags$hr()
+          
+        )
+      )
+    )
+  })
+  
+  # SCAP Data Preview Box
+  output$box_preview_scap <- renderUI({
+    div(
+      style="position: relative; backgroundColor: #ecf0f5",
+      tabBox(
+        id = "box_preview_scap",
+        width = NULL,
+        height = 320,
+        tabPanel(
+          title = "Data Preview", {
+            
+            # preview the uploaded data
+            DT::dataTableOutput("data.preview.table.scap")
+          }
+        )
+      )
+    )
+  })
+  
   # TODO: smartCOP Panel ----
   
   # Results Panel ----
@@ -535,11 +604,14 @@ server <- function(input, output, session) {
                            "quicksofa_respratemax","quicksofa_bpsys", 
                            "quicksofa_confusion","quicksofa_gcs")
     
-    
     inputid.halm <- c() # TODO: Add input IDs ----
-    inputid.scap <- c() # TODO: Add input IDs ----
-    inputid.smartcop <- c() # TODO: Add input IDs ----
     
+    inputid.scap <- c("scap_id", "scap_respratemin", "scap_respratemax", 
+                      "scap_bpsys", "scap_confusion", "scap_gcs", 
+                      "scap_age", "scap_apo2", "scap_multl", 
+                      "scap_bun", "scap_artph")
+    
+    inputid.smartcop <- c() # TODO: Add input IDs ----
     
     # join ids
     my.inputid <- c(inputid.psi, 
@@ -581,32 +653,6 @@ server <- function(input, output, session) {
     
     # PSI ----
     if(menu.select=="subtab_psi"){
-      
-      # silent check for all inputs
-      # req({
-      #   input$psi_id
-      #   input$psi_age 
-      #   input$psi_sex 
-      #   input$psi_confusion 
-      #   input$psi_pulse 
-      #   input$psi_resprate 
-      #   input$psi_bpsys
-      #   input$psi_tempmin
-      #   input$psi_tempmax
-      #   input$psi_tumor 
-      #   input$psi_heart 
-      #   input$psi_cerebo 
-      #   input$psi_renal
-      #   input$psi_liver
-      #   input$psi_nursehome 
-      #   input$psi_ph
-      #   input$psi_bun
-      #   input$psi_snat
-      #   input$psi_gluc 
-      #   input$psi_haem 
-      #   input$psi_apo2 
-      #   input$psi_pleu
-      # })
       
       # calculate the score and return it
       score <- tryCatch(
@@ -668,17 +714,19 @@ server <- function(input, output, session) {
           )
         }, error = function(e) {
           
-          return(
-            paste0(
+          data.table(
+            PATSTUID=NA,
+            qSOFA=paste0(
               "Error in calculation! Please check your input! Error message:",
-              as.character(e)))          
+              as.character(e))
+          )
         }
       )
       
       # create result table
       res <- data.table(
-        patient.id = dat[[input$quicksofa_id]],
-        qSOFA = score
+        patient.id = score$PATSTUID,
+        qSOFA = score$qSOFA
       )
       
       # Halm ----
@@ -686,6 +734,39 @@ server <- function(input, output, session) {
       
       # SCAP ----
     } else if (menu.select=="subtab_scap"){
+      
+      # calculate the score and return it
+      score <- tryCatch(
+        {
+          scap_simple(
+            ID = dat[,.SD,.SDcols=input$scap_id],
+            BPSysMin = dat[,.SD,.SDcols=input$scap_bpsys],
+            RespRateMin = dat[,.SD,.SDcols=input$scap_respratemin],
+            RespRateMax = dat[,.SD,.SDcols=input$scap_respratemax],
+            Confusion = dat[,.SD,.SDcols=input$scap_confusion],
+            GCS = dat[,.SD,.SDcols=input$scap_gcs],
+            ArtpH = dat[,.SD,.SDcols=input$scap_artph],
+            BUN = dat[,.SD,.SDcols=input$scap_bun],
+            Age = dat[,.SD,.SDcols=input$scap_age],
+            PaO2 = dat[,.SD,.SDcols=input$scap_apo2],
+            MultLobXRay = dat[,.SD,.SDcols=input$scap_multl]
+          )
+        }, error = function(e) {
+          
+          data.table(
+            PATSTUID=NA,
+            SCAP=paste0(
+              "Error in calculation! Please check your input! Error message:",
+              as.character(e))
+            )
+        }
+      )
+      
+      # create result table
+      res <- data.table(
+        patient.id = score$PATSTUID,
+        SCAP = score$SCAP
+      )
       
       # smartCOP ----
     } else if (menu.select=="subtab_smartcop"){

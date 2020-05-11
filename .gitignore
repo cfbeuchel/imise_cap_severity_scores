@@ -2,3 +2,6 @@
 .Rproj.user/*
 *.Rproj
 todo
+.Rproj.user
+tmp/
+tmp/*

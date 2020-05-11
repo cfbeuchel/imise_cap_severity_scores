@@ -45,5 +45,5 @@ quicksofa_simple <- function(
   res$PATSTUID = dat$id
   res <- data.table::setcolorder(res, neworder = c("PATSTUID", 
                                                    "qSOFA"))
-  return(res$qSOFA)
+  return(res)
 }
