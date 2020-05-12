@@ -6,7 +6,6 @@ library("shinydashboard")
 library("data.table")
 library("magrittr")
 library("DT")
-library("readxl")
 library("progressdatenbankderivate")
 
 # Source functions
