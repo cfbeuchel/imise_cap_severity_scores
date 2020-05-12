@@ -185,7 +185,7 @@ server <- function(input, output, session) {
           selectInput("psi_renal", "Renal disease history  (yes=1 no=0)", choices = NULL),
           selectInput("psi_liver", "Liver disease history (yes=1 no=0)", choices = NULL),
           selectInput("psi_nursehome", "Nursing home resident (yes=1 no=0)", choices = NULL),
-          selectInput("psi_ph", "pH", choices = NULL), # TODO: was ist das? ----
+          selectInput("psi_ph", "Arterial pH", choices = NULL),
           selectInput("psi_bun", "BUN [mmol/L]", choices = NULL),
           selectInput("psi_snat", "Snat (Sodium) [mmol/L]", choices = NULL),
           selectInput("psi_gluc", "Glucose [mmol/L]", choices = NULL),
@@ -200,7 +200,6 @@ server <- function(input, output, session) {
   })
   
   # PSI Data Preview Box
-  # Data preview Box
   output$box_preview_psi <- renderUI({
     div(
       style="position: relative; backgroundColor: #ecf0f5",
@@ -219,7 +218,7 @@ server <- function(input, output, session) {
     )
   })
   
-  # TODO: SIRS Panel ----
+  # SIRS Panel ----
   
   # SIRS Selection Box
   output$box_select_sirs <- renderUI({
@@ -235,48 +234,50 @@ server <- function(input, output, session) {
           helpText("Please select the columns in your data that encode the necessary information for the computation of the SIRS score."),
           tags$hr(),
           selectInput("sirs_id", "Patient ID", choices = NULL),
-          # selectInput("sirs_event", "Patient ID", choices = NULL),
-          # heart rate
-          # respiratory rate
-          # selectInput("sirs_resprate", "Respiratory rate [breaths/min]", choices = NULL),
-          # leucos
-          # suspected infection
-          # organ failure
-          # Severe sepsis with hypotension, despite adequate fluid resuscitation
-          
-          # temperature
           selectInput("sirs_tempmin", "Minimum Temperature [°C]", choices = NULL),
           selectInput("sirs_tempmax", "Maximum Temperature [°C]", choices = NULL),
+          selectInput("sirs_heartratemin", "Heart rate [beats/min]", choices = NULL),
+          selectInput("sirs_respratemax", "Respiratory rate [breaths/min]", choices = NULL),
+          selectInput("sirs_pco2", "Arterial partial pressure of CO2 [kPa]", choices = NULL),
+          selectInput("sirs_leukmin", "Minimum leucocytes [count/cm³]", choices = NULL),
+          selectInput("sirs_leukmax", "Maximum leucocytes [count/cm³]", choices = NULL),
+          selectInput("sirs_bandneutr", "Banded neutrophils [count/µL]", choices = NULL),
+          selectInput("sirs_segneutr", "Segmented neutrophils [count/µL]", choices = NULL),
           selectInput("sirs_confusion", "Altered mental status (yes=1 no=0)", choices = NULL),
-          
-          # sysBP
+          selectInput("sirs_thrombmin", "Minimum thrombocytes [count/µL]", choices = NULL),
+          selectInput("sirs_thrombprevmin", "Previous day minimum thrombocytes [count/µL]", choices = NULL),
+          selectInput("sirs_oxiind", "Minimum oxygenation (Horowitz) index [kPA]", choices = NULL),
+          selectInput("sirs_chronlung", "Chronic lung disease (yes=1, no=0)", choices = NULL),
+          selectInput("sirs_diur", "Diuresis [ml/day]", choices = NULL),
+          selectInput("sirs_weight", "Weight [kg]", choices = NULL),
+          selectInput("sirs_bemin", "Base excess", choices = NULL),
           selectInput("sirs_bpsys", "Systolic blood pressure [mmHg]", choices = NULL),
-          
-          
-          # selectInput("sirs_age", "Age [years]", choices = NULL),
-          # selectInput("sirs_sex", "Sex (female=1 male=0)", choices = NULL),
-          # selectInput("sirs_pulse", "Pulse [beats/min]", choices = NULL),
-          # selectInput("sirs_tumor", "Neoplastic disease (yes=1 no=0)", choices = NULL),
-          # selectInput("sirs_heart", "Congestive heart failure history (yes=1 no=0)", choices = NULL),
-          # selectInput("sirs_cerebo", "Cerebrovascular disease history (yes=1 no=0)", choices = NULL),
-          # selectInput("sirs_renal", "Renal disease history  (yes=1 no=0)", choices = NULL),
-          # selectInput("sirs_liver", "Liver disease history (yes=1 no=0)", choices = NULL),
-          # selectInput("sirs_nursehome", "Nursing home resident (yes=1 no=0)", choices = NULL),
-          # selectInput("sirs_ph", "pH", choices = NULL), # TODO: was ist das?
-          # selectInput("sirs_snat", "Snat (Sodium) [mmol/L]", choices = NULL),
-          # selectInput("sirs_gluc", "Glucose [mmol/L]", choices = NULL),
-          # selectInput("sirs_haem", "Hematocrit [%]", choices = NULL),
-          # selectInput("sirs_bun", "BUN [mmol/L]", choices = NULL),
-          # selectInput("sirs_apo2", "Partial pressure of oxygen [mmHg]", choices = NULL),
-          # selectInput("sirs_pleu", "Pleural effusion on x-ray (yes=1 no=0)", choices = NULL),
+          selectInput("sirs_map", "Mean arterial pressure [kPa]", choices = NULL),
+          selectInput("sirs_kate", "Treatment with catecholamines (yes=1, no=0)", choices = NULL),
           tags$hr()
-          
         )
       )
     )
   })
   
   # SIRS Data Preview Box
+  output$box_preview_sirs <- renderUI({
+    div(
+      style="position: relative; backgroundColor: #ecf0f5",
+      tabBox(
+        id = "box_preview_sirs",
+        width = NULL,
+        height = 320,
+        tabPanel(
+          title = "Data Preview", {
+            
+            # preview the uploaded data
+            DT::dataTableOutput("data.preview.table.sirs")
+          }
+        )
+      )
+    )
+  })
   
   # quickSOFA Panel ----
   
@@ -366,7 +367,7 @@ server <- function(input, output, session) {
           
           # PaO2 <54 mmHg (or PaO2/FiO2 <250 mmHg) partial O2 pressure
           selectInput("scap_apo2", "Partial pressure of oxygen [mmHg]", choices = NULL),
-
+          
           # Multilobar/bilateral X-ray (yes=1, no=0)
           selectInput("scap_multl", "Multilobar/bilateral X-ray (yes=1 no=0)", choices = NULL),
           
@@ -668,7 +669,28 @@ server <- function(input, output, session) {
                      "psi_bun", "psi_snat", "psi_gluc",
                      "psi_haem", "psi_apo2", "psi_pleu")
     
-    inputid.sirs <- c() # TODO: Add input IDs ----
+    inputid.sirs <- c(
+      "sirs_id",
+      "sirs_tempmin",
+      "sirs_tempmax", 
+      "sirs_heartratemin",
+      "sirs_respratemax",
+      "sirs_pco2",
+      "sirs_leukmin",
+      "sirs_leukmax",
+      "sirs_bandneutr",
+      "sirs_segneutr", 
+      "sirs_confusion",
+      "sirs_thrombmin",
+      "sirs_thrombprevmin", 
+      "sirs_oxiind", 
+      "sirs_chronlung",
+      "sirs_diur",
+      "sirs_weight", 
+      "sirs_bemin",
+      "sirs_bpsys", 
+      "sirs_map",
+      "sirs_kate")
     
     inputid.quicksofa <- c("quicksofa_id","quicksofa_respratemin",
                            "quicksofa_respratemax","quicksofa_bpsys", 
@@ -757,9 +779,11 @@ server <- function(input, output, session) {
         }, error = function(e) {
           
           return(
-            paste0(
-              "Error in calculation! Please check your input! Error message:",
-              as.character(e)))          
+           paste0(
+                "Error in calculation! Please check your input! Error message:",
+                as.character(e)
+            )
+          )        
         }
       )
       
@@ -769,8 +793,57 @@ server <- function(input, output, session) {
         PSI = score
       )
       
-      # TODO: SIRS ----
+      # SIRS ----
     } else if (menu.select=="subtab_sirs"){
+      
+      
+      # calculate the score and return it
+      score <- tryCatch(
+        {
+          sirs_simple(
+            temp.min = dat[[input$sirs_tempmin]],
+            temp.max = dat[[input$sirs_tempmax]],
+            hfrq.max = dat[[input$sirs_heartratemax]],
+            afrq.max = dat[[input$sirs_respratemax]],
+            pco2 = dat[[input$sirs_pco2]],
+            leuko_min = dat[[input$sirs_leukmin]],
+            leuko_max = dat[[input$sirs_leukmax]],
+            stkern.neutro = dat[[input$sirs_bandneutr]],
+            smkern.neutro = dat[[input$sirs_segneutr]],
+            verwirrt = dat[[input$sirs_confusion]],
+            thrombo_min = dat[[input$sirs_thrombmin]],
+            thrombo.daybefore = dat[[input$sirs_thrombprevmin]],
+            oxi.ind = dat[[input$sirs_oxiind]],
+            chr.lunge = dat[[input$sirs_chronlung]],
+            diur = dat[[input$sirs_diur]],
+            gewicht = dat[[input$sirs_weight]],
+            bemin = dat[[input$sirs_bemin]],
+            sysbp.min = dat[[input$sirs_bpsys]],
+            map = dat[[input$sirs_map]],
+            kate = dat[[input$sirs_kate]] 
+          )
+          
+        }, error = function(e) {
+          
+          return(
+            data.table(
+              PATSTUID=NA,
+              shock=NA,
+              infec.septic.servsept=paste0(
+                "Error in calculation! Please check your input! Error message:",
+                as.character(e))
+            )
+          )
+        }
+      )
+      
+      # create result table
+      res <- data.table(
+        patient.id = dat[[input$sirs_id]],
+        SIRS = score$infec.septic.servsept,
+        septic.shock = score$shock
+        
+      )
       
       # quickSOFA ----
     } else if (menu.select=="subtab_quicksofa"){
@@ -832,7 +905,7 @@ server <- function(input, output, session) {
             SCAP=paste0(
               "Error in calculation! Please check your input! Error message:",
               as.character(e))
-            )
+          )
         }
       )
       
@@ -842,7 +915,7 @@ server <- function(input, output, session) {
         SCAP = score$SCAP
       )
       
-      # TODO: smartCOP ----
+      # smartCOP ----
     } else if (menu.select=="subtab_smartcop"){
       
       # calculate the score and return it
