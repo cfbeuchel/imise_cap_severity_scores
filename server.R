@@ -120,7 +120,9 @@ server <- function(input, output, session) {
           helpText("Test the functionality of the App using the example data."),
           actionButton(inputId = "use.example.dat",label = "Use Example Data"),
           tags$hr(),
-          helpText(".....")
+          p("The data should be organized as a table with a row for each sample and a column for each feature. It is neccessary to specify an ID column."),
+          p("Most data will be numeric. In case of a binary variable, necessary numeric dummy-encoding is stated in the column selection box (yes=1, no=0)"),
+          tags$hr()
         )
       )
     )
@@ -326,7 +328,56 @@ server <- function(input, output, session) {
     )
   })
   
-  # TODO: Halm Panel ----
+  # Halm Panel ----
+  
+  # Halm Selection Box
+  output$box_select_halm <- renderUI({
+    
+    div(
+      style="position: relative; backgroundColor: #ecf0f5; overflow-y:scroll",
+      tabBox(
+        id = "box_select_halm",
+        width = NULL,
+        height = 640,
+        tabPanel(
+          title = "Halm",
+          helpText("Please select the columns in your data that encode the necessary information for the computation of the Halm score."),
+          tags$hr(),
+          selectInput("halm_id", "Patient ID", choices = NULL),
+          selectInput("halm_heartratemax", "Heart rate [beats/min]", choices = NULL),
+          selectInput("halm_bpsys", "Minimum Systolic blood pressure [mmHg]", choices = NULL),
+          selectInput("halm_respratemin", "Respiratory rate [breaths/min]", choices = NULL),
+          selectInput("halm_o2p", "Minimum oxygen saturation [%]", choices = NULL),
+          selectInput("halm_apo2", "Partial pressure of oxygen [mmHg]", choices = NULL),
+          selectInput("halm_mecvent", "Mechanical ventilation (yes=1, no=0)", choices = NULL),
+          selectInput("halm_oxther", "Oxygen therapy (yes=1, no=0)", choices = NULL),
+          selectInput("halm_tempmax", "Maximum Temperature [°C]", choices = NULL),
+          selectInput("halm_confusion", "Altered mental status (yes=1 no=0)", choices = NULL),
+          selectInput("halm_gcs", "GCS (Glasgow Coma Scale)", choices = NULL),
+          tags$hr()
+        )
+      )
+    )
+  })
+  
+  # Halm Data Preview Box
+  output$box_preview_halm <- renderUI({
+    div(
+      style="position: relative; backgroundColor: #ecf0f5",
+      tabBox(
+        id = "box_preview_halm",
+        width = NULL,
+        height = 320,
+        tabPanel(
+          title = "Data Preview", {
+            
+            # preview the uploaded data
+            DT::dataTableOutput("data.preview.table.halm")
+          }
+        )
+      )
+    )
+  })
   
   # SCAP Panel ----
   
@@ -696,7 +747,18 @@ server <- function(input, output, session) {
                            "quicksofa_respratemax","quicksofa_bpsys", 
                            "quicksofa_confusion","quicksofa_gcs")
     
-    inputid.halm <- c() # TODO: Add input IDs ----
+    inputid.halm <- c(
+      "halm_id", 
+      "halm_heartratemax", 
+      "halm_bpsys", 
+      "halm_respratemin", 
+      "halm_o2p", 
+      "halm_apo2", 
+      "halm_mecvent",
+      "halm_oxther", 
+      "halm_tempmax", 
+      "halm_confusion", 
+      "halm_gcs")
     
     inputid.scap <- c("scap_id", "scap_respratemin", "scap_respratemax", 
                       "scap_bpsys", "scap_confusion", "scap_gcs", 
@@ -876,8 +938,41 @@ server <- function(input, output, session) {
         qSOFA = score$qSOFA
       )
       
-      # TODO: Halm ----
+      # Halm ----
     } else if (menu.select=="subtab_halm"){
+      
+      # calculate the score and return it
+      score <- tryCatch(
+        {
+          HalmScore_simple(
+            hfrq.max = dat[[input$halm_heartratemax]],
+            sysbp.min = dat[[input$halm_bpsys]],
+            afrq.max = dat[[input$halm_respratemin]],
+            o2p.min = dat[[input$halm_o2p]],
+            apo2.min = dat[[input$halm_apo2]],
+            bea = dat[[input$halm_mecvent]],
+            sauerst = dat[[input$halm_oxther]],
+            temp.max = dat[[input$halm_tempmax]],
+            verwirrt = dat[[input$halm_confusion]],
+            gcs = dat[[input$halm_gcs]]
+              )
+     
+        }, error = function(e) {
+          
+          return(
+            paste0(
+              "Error in calculation! Please check your input! Error message:",
+              as.character(e)
+            )
+          )        
+        }
+      )
+      
+      # create result table
+      res <- data.table(
+        patient.id = dat[[input$halm_id]],
+        Halm = score
+      )
       
       # SCAP ----
     } else if (menu.select=="subtab_scap"){
