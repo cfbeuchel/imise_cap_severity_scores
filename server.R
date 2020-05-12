@@ -815,35 +815,41 @@ server <- function(input, output, session) {
       # calculate the score and return it
       score <- tryCatch(
         {
-          psi_simple(
-            age = dat[,.SD,.SDcols=input$psi_age],
-            gender = dat[,.SD,.SDcols=input$psi_sex],
-            verwirrt = dat[,.SD,.SDcols=input$psi_confusion],
-            hfrq.max = dat[,.SD,.SDcols=input$psi_pulse],
-            afrq.max = dat[,.SD,.SDcols=input$psi_resprate],
-            sysbp.min = dat[,.SD,.SDcols=input$psi_bpsys],
-            temp.min = dat[,.SD,.SDcols=input$psi_tempmin],
-            temp.max = dat[,.SD,.SDcols=input$psi_tempmax],
-            tumor = dat[,.SD,.SDcols=input$psi_tumor],
-            herz = dat[,.SD,.SDcols=input$psi_heart],
-            cerebro = dat[,.SD,.SDcols=input$psi_cerebo],
-            renal = dat[,.SD,.SDcols=input$psi_renal],
-            liver = dat[,.SD,.SDcols=input$psi_liver],
-            nurse.home = dat[,.SD,.SDcols=input$psi_nursehome],
-            art.ph.min = dat[,.SD,.SDcols=input$psi_ph],
-            bun = dat[,.SD,.SDcols=input$psi_bun],
-            snat = dat[,.SD,.SDcols=input$psi_snat],
-            gluk = dat[,.SD,.SDcols=input$psi_gluc],
-            haemkrt = dat[,.SD,.SDcols=input$psi_haem],
-            apo2.min = dat[,.SD,.SDcols=input$psi_apo2],
-            pleu_erg = dat[,.SD,.SDcols=input$psi_pleu])
+          data.table(
+            id = dat[[input$psi_id]],
+            psi = psi_simple(
+              age = dat[,.SD,.SDcols=input$psi_age],
+              gender = dat[,.SD,.SDcols=input$psi_sex],
+              verwirrt = dat[,.SD,.SDcols=input$psi_confusion],
+              hfrq.max = dat[,.SD,.SDcols=input$psi_pulse],
+              afrq.max = dat[,.SD,.SDcols=input$psi_resprate],
+              sysbp.min = dat[,.SD,.SDcols=input$psi_bpsys],
+              temp.min = dat[,.SD,.SDcols=input$psi_tempmin],
+              temp.max = dat[,.SD,.SDcols=input$psi_tempmax],
+              tumor = dat[,.SD,.SDcols=input$psi_tumor],
+              herz = dat[,.SD,.SDcols=input$psi_heart],
+              cerebro = dat[,.SD,.SDcols=input$psi_cerebo],
+              renal = dat[,.SD,.SDcols=input$psi_renal],
+              liver = dat[,.SD,.SDcols=input$psi_liver],
+              nurse.home = dat[,.SD,.SDcols=input$psi_nursehome],
+              art.ph.min = dat[,.SD,.SDcols=input$psi_ph],
+              bun = dat[,.SD,.SDcols=input$psi_bun],
+              snat = dat[,.SD,.SDcols=input$psi_snat],
+              gluk = dat[,.SD,.SDcols=input$psi_gluc],
+              haemkrt = dat[,.SD,.SDcols=input$psi_haem],
+              apo2.min = dat[,.SD,.SDcols=input$psi_apo2],
+              pleu_erg = dat[,.SD,.SDcols=input$psi_pleu])
+          )
           
         }, error = function(e) {
           
           return(
-           paste0(
+            data.table(
+              id = NA,
+              psi = paste0(
                 "Error in calculation! Please check your input! Error message:",
                 as.character(e)
+              )
             )
           )        
         }
@@ -851,8 +857,8 @@ server <- function(input, output, session) {
       
       # create result table
       res <- data.table(
-        patient.id = dat[[input$psi_id]],
-        PSI = score
+        patient.id = score$id,
+        PSI = score$psi
       )
       
       # SIRS ----
@@ -862,7 +868,8 @@ server <- function(input, output, session) {
       # calculate the score and return it
       score <- tryCatch(
         {
-          sirs_simple(
+          
+          score <- sirs_simple(
             temp.min = dat[[input$sirs_tempmin]],
             temp.max = dat[[input$sirs_tempmax]],
             hfrq.max = dat[[input$sirs_heartratemax]],
@@ -885,15 +892,21 @@ server <- function(input, output, session) {
             kate = dat[[input$sirs_kate]] 
           )
           
+          data.table(
+            id = dat[[input$sirs_id]],
+            sirs = score$infec.septic.servsept,
+            shock = score$shock
+          )
+          
         }, error = function(e) {
           
           return(
             data.table(
-              PATSTUID=NA,
-              shock=NA,
-              infec.septic.servsept=paste0(
+              id=NA,
+              sirs=paste0(
                 "Error in calculation! Please check your input! Error message:",
-                as.character(e))
+                as.character(e)),
+              shock=NA
             )
           )
         }
@@ -901,8 +914,8 @@ server <- function(input, output, session) {
       
       # create result table
       res <- data.table(
-        patient.id = dat[[input$sirs_id]],
-        SIRS = score$infec.septic.servsept,
+        patient.id = score$id,
+        SIRS = score$sirs,
         septic.shock = score$shock
         
       )
@@ -944,34 +957,40 @@ server <- function(input, output, session) {
       # calculate the score and return it
       score <- tryCatch(
         {
-          HalmScore_simple(
-            hfrq.max = dat[[input$halm_heartratemax]],
-            sysbp.min = dat[[input$halm_bpsys]],
-            afrq.max = dat[[input$halm_respratemin]],
-            o2p.min = dat[[input$halm_o2p]],
-            apo2.min = dat[[input$halm_apo2]],
-            bea = dat[[input$halm_mecvent]],
-            sauerst = dat[[input$halm_oxther]],
-            temp.max = dat[[input$halm_tempmax]],
-            verwirrt = dat[[input$halm_confusion]],
-            gcs = dat[[input$halm_gcs]]
-              )
-     
+          data.table(
+            halm = HalmScore_simple(
+              hfrq.max = dat[[input$halm_heartratemax]],
+              sysbp.min = dat[[input$halm_bpsys]],
+              afrq.max = dat[[input$halm_respratemin]],
+              o2p.min = dat[[input$halm_o2p]],
+              apo2.min = dat[[input$halm_apo2]],
+              bea = dat[[input$halm_mecvent]],
+              sauerst = dat[[input$halm_oxther]],
+              temp.max = dat[[input$halm_tempmax]],
+              verwirrt = dat[[input$halm_confusion]],
+              gcs = dat[[input$halm_gcs]]
+            ),
+            id = dat[[input$halm_id]]
+          )
+          
         }, error = function(e) {
           
           return(
-            paste0(
-              "Error in calculation! Please check your input! Error message:",
-              as.character(e)
+            data.table(
+              id=NA,
+              halm=paste0(
+                "Error in calculation! Please check your input! Error message:",
+                as.character(e)
+              )
             )
-          )        
+          )
         }
       )
       
       # create result table
       res <- data.table(
-        patient.id = dat[[input$halm_id]],
-        Halm = score
+        patient.id = score$id,
+        Halm = score$halm
       )
       
       # SCAP ----
@@ -1050,7 +1069,10 @@ server <- function(input, output, session) {
       
     } else {
       
-      res <- data.table(" " = "Please choose a score from the menu on the left before pressing the 'Calculate Score'-button.")
+      res <- data.table(
+        ID = NA,
+        Score = "Please choose a score from the menu on the left before pressing the 'Calculate Score'-button."
+        )
       
     }
     
