@@ -13,3 +13,4 @@ library("progressdatenbankderivate")
 
 source("functions/quicksofa_simple.R")
 source("functions/scap_simple.R")
+source("functions/smartcop_simple.R")

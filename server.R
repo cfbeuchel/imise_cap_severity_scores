@@ -396,7 +396,77 @@ server <- function(input, output, session) {
     )
   })
   
-  # TODO: smartCOP Panel ----
+  # smartCOP Panel ----
+  
+  # SMART-COP Selection Box
+  output$box_select_smartcop <- renderUI({
+    
+    div(
+      style="position: relative; backgroundColor: #ecf0f5; overflow-y:scroll",
+      tabBox(
+        id = "box_select_smartcop",
+        width = NULL,
+        height = 640,
+        tabPanel(
+          title = "SMART-COP",
+          helpText("Please select the columns in your data that encode the necessary information for the computation of the SMART-COP score."),
+          tags$hr(),
+          selectInput("smartcop_id", "Patient ID", choices = NULL),
+          
+          # age
+          selectInput("smartcop_age", "Age [years]", choices = NULL),
+          
+          # multl
+          selectInput("smartcop_multl", "Multilobar/bilateral X-ray (yes=1 no=0)", choices = NULL),
+          
+          # albumin
+          selectInput("smartcop_alb", "Albumin [g/L]", choices = NULL),
+          
+          # resprate
+          selectInput("smartcop_respratemin", "Minimum Respiratory rate [breaths/min]", choices = NULL),
+          selectInput("smartcop_respratemax", "Maximum Respiratory rate [breaths/min]", choices = NULL),
+          
+          # tachycardia
+          selectInput("smartcop_heartratemin", "Minimum heart rate [beats/min]", choices = NULL),
+          selectInput("smartcop_heartratemax", "Maximum heart rate [beats/min]", choices = NULL),
+          
+          # confusion & gcs
+          selectInput("smartcop_confusion", "Altered mental status (yes=1 no=0)", choices = NULL),
+          selectInput("smartcop_gcs", "GCS (Glasgow Coma Scale)", choices = NULL),
+          
+          # pao2
+          selectInput("smartcop_apo2", "Partial pressure of oxygen [mmHg]", choices = NULL),
+          
+          # ph
+          selectInput("smartcop_artph", "Artierial pH", choices = NULL),
+          
+          # sysp
+          selectInput("smartcop_bpsys", "Minimum Systolic blood pressure [mmHg]", choices = NULL),
+          
+          tags$hr()
+        )
+      )
+    )
+  })
+  
+  # SMART-COP Data Preview Box
+  output$box_preview_smartcop <- renderUI({
+    div(
+      style="position: relative; backgroundColor: #ecf0f5",
+      tabBox(
+        id = "box_preview_smartcop",
+        width = NULL,
+        height = 320,
+        tabPanel(
+          title = "Data Preview", {
+            
+            # preview the uploaded data
+            DT::dataTableOutput("data.preview.table.smartcop")
+          }
+        )
+      )
+    )
+  })
   
   # Results Panel ----
   
@@ -611,7 +681,11 @@ server <- function(input, output, session) {
                       "scap_age", "scap_apo2", "scap_multl", 
                       "scap_bun", "scap_artph")
     
-    inputid.smartcop <- c() # TODO: Add input IDs ----
+    inputid.smartcop <- c("smartcop_id", "smartcop_respratemin", "smartcop_respratemax", 
+                          "smartcop_heartratemin", "smartcop_heartratemax", "smartcop_alb",
+                          "smartcop_bpsys", "smartcop_confusion", "smartcop_gcs", 
+                          "smartcop_age", "smartcop_apo2", "smartcop_multl", 
+                          "smartcop_artph")
     
     # join ids
     my.inputid <- c(inputid.psi, 
@@ -695,7 +769,7 @@ server <- function(input, output, session) {
         PSI = score
       )
       
-      # SIRS ----
+      # TODO: SIRS ----
     } else if (menu.select=="subtab_sirs"){
       
       # quickSOFA ----
@@ -729,7 +803,7 @@ server <- function(input, output, session) {
         qSOFA = score$qSOFA
       )
       
-      # Halm ----
+      # TODO: Halm ----
     } else if (menu.select=="subtab_halm"){
       
       # SCAP ----
@@ -768,8 +842,43 @@ server <- function(input, output, session) {
         SCAP = score$SCAP
       )
       
-      # smartCOP ----
+      # TODO: smartCOP ----
     } else if (menu.select=="subtab_smartcop"){
+      
+      # calculate the score and return it
+      score <- tryCatch(
+        {
+          smartcop_simple(
+            ID = dat[,.SD,.SDcols=input$smartcop_id],
+            BPSysMin = dat[,.SD,.SDcols=input$smartcop_bpsys],
+            RespRateMin = dat[,.SD,.SDcols=input$smartcop_respratemin],
+            RespRateMax = dat[,.SD,.SDcols=input$smartcop_respratemax],
+            HeartRateMin = dat[,.SD,.SDcols=input$smartcop_heartratemin],
+            HeartRateMax = dat[,.SD,.SDcols=input$smartcop_heartratemax],
+            Confusion = dat[,.SD,.SDcols=input$smartcop_confusion],
+            GCS = dat[,.SD,.SDcols=input$smartcop_gcs],
+            ArtpH = dat[,.SD,.SDcols=input$smartcop_artph],
+            Alb = dat[,.SD,.SDcols=input$smartcop_alb],
+            Age = dat[,.SD,.SDcols=input$smartcop_age],
+            PaO2 = dat[,.SD,.SDcols=input$smartcop_apo2],
+            MultLobXRay = dat[,.SD,.SDcols=input$smartcop_multl]
+          )
+        }, error = function(e) {
+          
+          data.table(
+            PATSTUID=NA,
+            smartCOP=paste0(
+              "Error in calculation! Please check your input! Error message:",
+              as.character(e))
+          )
+        }
+      )
+      
+      # create result table
+      res <- data.table(
+        patient.id = score$PATSTUID,
+        smartCOP = score$smartCOP
+      )
       
     } else {
       
