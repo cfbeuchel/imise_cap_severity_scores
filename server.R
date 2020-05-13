@@ -117,7 +117,7 @@ server <- function(input, output, session) {
         ),
         tabPanel(
           title="Information",
-          helpText("Test the functionality of the App using the example data."),
+          helpText("Test the functionality of the App using the example data. The example data can be used to calculate the Quick SOFA score."),
           actionButton(inputId = "use.example.dat",label = "Use Example Data"),
           tags$hr(),
           p("The data should be organized as a table with a row for each sample and a column for each feature. It is neccessary to specify an ID column."),

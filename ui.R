@@ -25,7 +25,9 @@ ui <- dashboardPage(
 
       # Quick workflow guide
       notificationItem(
-        text = tags$div("See the 'Format' tab before",
+        text = tags$div("See the 'Information' and",
+                        tags$br(),
+                        "'Data Example' tabs before",
                         tags$br(),
                         "uploading your data.",
                         style = "display: inline-block; vertical-align: middle;"),
