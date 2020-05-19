@@ -417,7 +417,7 @@ server <- function(input, output, session) {
           selectInput("scap_age", "Age [years]", choices = NULL),
           
           # PaO2 <54 mmHg (or PaO2/FiO2 <250 mmHg) partial O2 pressure
-          selectInput("scap_apo2", "Partial pressure of oxygen [mmHg]", choices = NULL),
+          selectInput("scap_apo2", "Horowitz-Index (PaO2/FiO2) [mmHg]", choices = NULL),
           
           # Multilobar/bilateral X-ray (yes=1, no=0)
           selectInput("scap_multl", "Multilobar/bilateral X-ray (yes=1 no=0)", choices = NULL),
