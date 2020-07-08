@@ -248,7 +248,7 @@ server <- function(input, output, session) {
           selectInput("sirs_confusion", "Altered mental status (yes=1 no=0)", choices = NULL),
           selectInput("sirs_thrombmin", "Minimum thrombocytes [count/µL]", choices = NULL),
           selectInput("sirs_thrombprevmin", "Previous day minimum thrombocytes [count/µL]", choices = NULL),
-          selectInput("sirs_oxiind", "Minimum oxygenation (Horowitz) index [kPA]", choices = NULL),
+          selectInput("sirs_oxiind", "Minimum oxygenation (Horowitz) index [kPa]", choices = NULL),
           selectInput("sirs_chronlung", "Chronic lung disease (yes=1, no=0)", choices = NULL),
           selectInput("sirs_diur", "Diuresis [ml/day]", choices = NULL),
           selectInput("sirs_weight", "Weight [kg]", choices = NULL),
@@ -554,6 +554,12 @@ server <- function(input, output, session) {
         tabPanel(
           title = "Results",
           DT::dataTableOutput("result.preview")
+        ),
+        tabPanel(
+          title = "Score Distribution",
+          plotOutput(outputId = "results.histogram",
+                     width = "600px",
+                     height = "400px")
         )
       )
     )
@@ -1081,6 +1087,24 @@ server <- function(input, output, session) {
     
     # display results
     output$result.preview <- DT::renderDataTable({res})
+    
+    output$results.histogram <- renderPlot({
+      
+      # needs some data 
+      req(length(unlist(res[,2,with=F]))>0)
+      
+      bar.lwd <- par(lwd=3)
+      hist(x = unlist(res[,2,with=F]), 
+           col = "grey90",
+           border = "grey35",
+           main = paste0("Distribution of ", names(res)[2], " in sample"),
+           xlab = paste0(names(res)[2], " values"),
+           ylab = "Frequency", 
+           pch=2, 
+           lwd=1.4,
+           cex=1.5
+           )
+      })
     
   })
   
