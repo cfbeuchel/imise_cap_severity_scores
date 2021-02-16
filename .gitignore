@@ -5,3 +5,4 @@ todo
 .Rproj.user
 tmp/
 tmp/*
+.gitlab-ci.yml
